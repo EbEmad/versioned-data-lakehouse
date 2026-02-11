@@ -1,25 +1,25 @@
-# this is a simple workflow to help to start
+name: Test Docker Compose
 
-name: trigger
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-on: push
-# a work flow is made up of one or more jobs that can run
 jobs:
-  # this workflow contains a single job called build
-  build:
-    runs-on: ubuntu:latest
-
-    # what should run inside the ruinner
+  test:
+    runs-on: ubuntu-latest
     steps:
-      # check out your repo 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      # runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo hello hema!
-      # run a set of command using the runners shell
-      - name: Run a set of commands using the runners shell
+      - name: Validate Docker Compose File
+        run: docker-compose config
+
+      - name: Start Services
+        run: docker-compose up -d
+
+      - name: Verify Containers are Running
         run: |
-          echo thank you for your efforts
-          echo you are doing bad
-  
+          sleep 10
+          docker-compose ps
+          docker-compose ps | grep "Up" || (echo "Some services failed to start" && exit 1)
